@@ -1,192 +1,192 @@
-#! python3
-#Michi4
-from PIL import Image
+import pyperclip
 import pyautogui
-import sys
 import time
 import random
 import string
 import webbrowser
-import ctypes
 import re
 
-CF_TEXT = 1
 
-kernel32 = ctypes.windll.kernel32
-kernel32.GlobalLock.argtypes = [ctypes.c_void_p]
-kernel32.GlobalLock.restype = ctypes.c_void_p
-kernel32.GlobalUnlock.argtypes = [ctypes.c_void_p]
-user32 = ctypes.windll.user32
-user32.GetClipboardData.restype = ctypes.c_void_p
+class ProtonMailGenerator:
+    """
+    Proton mail generator class, that utilized pyautogui to create the new mail.
+    To call it user ProtonMailGenerator().generate(),
+    also you can specify username and password when you create instance of the class, but it's highly
+    recommend to use random generated username and password
+    """
+    # time config
+    TIME_FOR_PAGE_SWAP = 1
+    TIME_FOR_PAGE_LOADING = 5
+    TIME_FOR_USER_CREATION = 20
 
-def getClip6digit():
-    user32.OpenClipboard(0)
-    try:
-        if user32.IsClipboardFormatAvailable(CF_TEXT):
-            data = user32.GetClipboardData(CF_TEXT)
-            data_locked = kernel32.GlobalLock(data)
-            text = ctypes.c_char_p(data_locked)
-            value = text.value
-            kernel32.GlobalUnlock(data_locked)
-            return str(re.findall(r'(\d{6})', (str(value))))
-    finally:
-        user32.CloseClipboard()
+    def __init__(self, username=None, password=None):
+        self.username = username
+        self.password = password
 
-def getMail():
-    user32.OpenClipboard(0)
-    try:
-        if user32.IsClipboardFormatAvailable(CF_TEXT):
-            data = user32.GetClipboardData(CF_TEXT)
-            data_locked = kernel32.GlobalLock(data)
-            text = ctypes.c_char_p(data_locked)
-            value = text.value
-            kernel32.GlobalUnlock(data_locked)
-            if "@dropmail.me" in str(value)  or "@10mail.org"  in str(value)  or "@emlpro.com" in str(value) or "@emltmp.com" in str(value): # 
-                match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', str(value))
+    @staticmethod
+    # find if we received message with verification code
+    def get_mail():
+        try:
+            clipboard_text = pyperclip.paste()
+            if 'verify.proton.me' in clipboard_text:  #
+                match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', clipboard_text)
                 return str(match.group(0))
             return False
-    finally:
-        user32.CloseClipboard()
-webbrowser.open('https://google.com')
+        except Exception as e:
+            print(f"Error: {e}")
+            return False
 
-time.sleep(5)
-pyautogui.keyDown('ctrlleft'); pyautogui.keyDown('shift'); pyautogui.typewrite('p'); pyautogui.keyUp('ctrlleft'); pyautogui.keyUp('shift')
-pyautogui.typewrite('https://account.proton.me/signup?plan=free\n')
-time.sleep(5)
+    @staticmethod
+    # find verification code in the string
+    def find_ver_code(input_string):
+        pattern = re.compile(r'\b\d{6}\b')
+        matches = re.findall(pattern, input_string)
+        return matches[0]
 
+    @staticmethod
+    # randomize string depended on length and option
+    def randomize(_option_, _length_):
+        if _length_ > 0:
 
+            # Options:
+            #       -p      for letters, numbers and symbols
+            #       -s      for letters and numbers
+            #       -l      for letters only
+            #       -n      for numbers only
+            #       -m      for month selection
+            #       -d      for day selection
+            #       -y      for year selection
 
-def randomize(
-                _option_,
-                _length_
-            ):
+            if _option_ == '-p':
+                string._characters_ = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+'
+            elif _option_ == '-s':
+                string._characters_ = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+            elif _option_ == '-l':
+                string._characters_ = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            elif _option_ == '-n':
+                string._characters_ = '1234567890'
+            elif _option_ == '-m':
+                string._characters_ = 'JFMASOND'
 
-    if _length_ > 0 :
+            if _option_ == '-d':
+                _generated_info_ = random.randint(1, 28)
+            elif _option_ == '-y':
+                _generated_info_ = random.randint(1950, 2000)
+            else:
+                _generated_info_ = ''
+                for _counter_ in range(0, _length_):
+                    _generated_info_ = _generated_info_ + random.choice(string._characters_)
 
-        # Options:
-        #       -p      for letters, numbers and symbols
-        #       -s      for letters and numbers
-        #       -l      for letters only
-        #       -n      for numbers only
-        #       -m      for month selection
-        #       -d      for day selection
-        #       -y      for year selection
+            return _generated_info_
 
-        if _option_ == '-p':
-            string._characters_='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+'
-        elif _option_ == '-s':
-            string._characters_='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
-        elif _option_ == '-l':
-            string._characters_='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        elif _option_ == '-n':
-            string._characters_='1234567890'
-        elif _option_ == '-m':
-            string._characters_='JFMASOND'
-
-        if _option_ == '-d':
-            _generated_info_=random.randint(1,28)
-        elif _option_ == '-y':
-            _generated_info_=random.randint(1950,2000)
         else:
-            _generated_info_=''
-            for _counter_ in range(0,_length_) :
-                _generated_info_= _generated_info_ + random.choice(string._characters_)
+            return 'error'
 
-        return _generated_info_
+    @staticmethod
+    def randomize_domain(input_email):
+        email = input_email
+        # domain choices that https://www.guerrillamail.com/ offers to use, we can rondomize domains for decreasing
+        # chances to get blocked by proton security system
+        domain_choices = [
+            'guerrillamail.biz', 'guerrillamail.de', 'guerrillamailblock.com', 'sharklasers.com', 'pokemail.net'
+        ]
+        slice_index = email.index('@')
+        email = email[:slice_index + 1]
+        email += random.choice(domain_choices)
+        return email
 
-    else:
-        return 'error'
+    def generate(self):
+        # Start proton mail generation
+        webbrowser.open('https://google.com')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
 
-# Username
-_username_=randomize('-s',5)+randomize('-s',5)+randomize('-s',5)
-pyautogui.typewrite(_username_ + '\t\t')
-print("Username:" + _username_)
+        pyautogui.hotkey('alt', 'd')
 
-# Password
-_password_=randomize('-p',16)
-pyautogui.typewrite(_password_+'\t'+_password_+'\t')
-print("Password:" + _password_)
+        pyautogui.typewrite('https://account.proton.me/signup?plan=free\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
 
-pyautogui.typewrite('\n')
-time.sleep(5)
-pyautogui.typewrite('\t\t\t\n')
+        # Username
+        if not self.username:
+            self.username = ProtonMailGenerator.randomize('-s', 5) + ProtonMailGenerator.randomize('-s', 5) \
+                         + ProtonMailGenerator.randomize('-s', 5)
+        pyautogui.typewrite(self.username + '\t\t\t')
+        print("Username:" + self.username)
 
-pyautogui.keyDown('ctrlleft');  pyautogui.typewrite('t'); pyautogui.keyUp('ctrlleft')
+        # Password
+        if not self.password:
+            self.password = ProtonMailGenerator.randomize('-p', 16)
+        pyautogui.typewrite(self.password + '\t' + self.password)
+        print("Password:" + self.password)
 
-time.sleep(10)
-pyautogui.typewrite('https://dropmail.me/\n')
+        pyautogui.typewrite('\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+        pyautogui.typewrite('\t\t\t\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+
+        pyautogui.hotkey('ctrl', 't')
+        pyautogui.hotkey('alt', 'd')
+        pyautogui.typewrite('https://www.guerrillamail.com/\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+
+        # get temp email for proton validation
+        pyautogui.hotkey('ctrl', 'c')
+        pyperclip.copy(ProtonMailGenerator.randomize_domain(pyperclip.paste()))
+        pyautogui.hotkey('ctrl', '1')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_SWAP)
+
+        pyautogui.hotkey('ctrl', 'v')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_SWAP)
+        pyautogui.typewrite('\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+
+        pyautogui.hotkey('ctrl', '2')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_SWAP)
+
+        # Wait and find email with verification code
+        newMail = True
+        while True:
+
+            if not newMail:
+                pyautogui.hotkey('ctrl', 'r')
+                time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+
+            pyautogui.hotkey('ctrl', 'a')
+            pyautogui.hotkey('ctrl', 'c')
+            newMail = ProtonMailGenerator.get_mail()
+            if newMail:
+                print("10 min mail: " + newMail)
+                break
+
+        # retrieve verification code from email
+        pyautogui.hotkey('ctrl', 'r')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+        pyautogui.typewrite('\t' * 12 + '\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+        pyautogui.hotkey('ctrl', 'a')
+        pyautogui.hotkey('ctrl', 'c')
+
+        clipboard_content = pyperclip.paste()
+        # copy code in ClipBoard
+        pyperclip.copy(ProtonMailGenerator.find_ver_code(clipboard_content))
+
+        pyautogui.hotkey('ctrl', '1')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+        pyautogui.hotkey('ctrl', 'v')
+        pyautogui.typewrite('\n')
+
+        time.sleep(ProtonMailGenerator.TIME_FOR_USER_CREATION)
+        pyautogui.typewrite('\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+        pyautogui.typewrite('\t' * 4 + '\n')
+        time.sleep(ProtonMailGenerator.TIME_FOR_PAGE_LOADING)
+        pyautogui.typewrite('\t\n')
+
+        print(self.username + "@proton.me:" + self.password)
+
+        logfile = open("accLog.txt", "a")
+        logfile.write(self.username + "@proton.me:" + self.password + "\n")
+        logfile.close()
 
 
-pyautogui.keyDown('shift');pyautogui.keyDown('down'); pyautogui.keyUp('down'); pyautogui.keyUp('shift')
-time.sleep(10)
-
-newMail = True
-while True:
-    if not newMail:
-        pyautogui.keyDown('ctrlleft'); pyautogui.typewrite('r'); pyautogui.keyUp('ctrlleft')
-        time.sleep(5)
-    pyautogui.typewrite('\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t')#28
-    pyautogui.keyDown('ctrlleft')
-    pyautogui.keyDown('shiftleft')
-    pyautogui.keyDown('shiftright')
-    pyautogui.press('down')
-    pyautogui.keyUp('shiftleft')
-    pyautogui.keyUp('shiftright')
-    pyautogui.keyUp('ctrlleft')
-    pyautogui.keyDown('ctrlleft'); pyautogui.typewrite('c'); pyautogui.keyUp('ctrlleft')
-    newMail = getMail()
-    if newMail:
-        print("10 min mail: " + newMail)
-        break
-
-pyautogui.keyDown('ctrlleft');  pyautogui.typewrite('\t'); pyautogui.keyUp('ctrlleft')
-time.sleep(1)
-#äpyautogui.typewrite(newMail)
-pyautogui.keyDown('ctrlleft');  pyautogui.typewrite('v'); pyautogui.keyUp('ctrlleft')
-pyautogui.press('backspace')
-pyautogui.typewrite('\n')
-
-time.sleep(10)
-
-pyautogui.keyDown('ctrlleft');  pyautogui.typewrite('\t'); pyautogui.keyUp('ctrlleft')
-time.sleep(1)
-
-#pyautogui.typewrite('\t\t\t\t\t\t\t\t\t\t\t\t\t\n')
-
-#time.sleep(5)
-
-
-pyautogui.keyDown('ctrlleft');  pyautogui.typewrite('a'); pyautogui.keyUp('ctrlleft')
-pyautogui.keyDown('ctrlleft'); pyautogui.typewrite('c'); pyautogui.keyUp('ctrlleft')
-
-
-pyautogui.keyDown('ctrlleft');  pyautogui.typewrite('\t'); pyautogui.keyUp('ctrlleft')
-time.sleep(5)
-pyautogui.typewrite(str(getClip6digit()) + '\n')
-
-
-time.sleep(5)
-pyautogui.typewrite('\n')
-time.sleep(5)
-pyautogui.typewrite('\t\t\t\t\n')
-time.sleep(1)
-pyautogui.typewrite('\t\n')
-
-print(_username_+"@proton.me:" + _password_)
-
-logfile = open("accLog.txt", "a")
-logfile.write(_username_ + "@proton.me:" + _password_ + "\n")
-logfile.close()
-
-
-
-# CHAPTCHA
-#pyautogui.typewrite('\t')
-#pyautogui.typewrite('\t')
-#pyautogui.typewrite('\t')
-#pyautogui.typewrite('\t')
-#pyautogui.typewrite('\t')
-#pyautogui.typewrite('\t')
-#pyautogui.typewrite('\t')
-
-#pyautogui.typewrite('\n')
+if __name__ == '__main__':
+    ProtonMailGenerator().generate()
