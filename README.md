@@ -7,3 +7,5 @@ There are several things that I fixed in the code:
   4. Adhered to Python programming principles, making the code more readable, easier to understand, and also removing those strange Python-incompatible signs ';'.
   5. Added a user function so that they can specify whether they want to use a password or username; if nothing is specified, random values are used.
   6. Transformed the generator into a class for easier import and further modification of the code.
+
+You can compare old code(chromegen.py) to the new one(generator.py)
