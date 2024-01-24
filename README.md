@@ -9,3 +9,8 @@ There are several things that I fixed in the code:
   6. Transformed the generator into a class for easier import and further modification of the code.
 
 You can compare old code(chromegen.py) to the new one(generator.py)
+
+# How to run
+  To run this code localy you need to install following packages:
+    1. pyperclip
+    2. pyautogui
